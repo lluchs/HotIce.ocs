@@ -3,11 +3,14 @@
 static g_remaining_rounds, g_winners, g_check_victory_effect;
 static g_gameover;
 
+
 func Initialize()
 {
 	g_remaining_rounds = SCENPAR_Rounds;
 	g_winners = [];
 	InitializeRound();
+	SetSkyParallax(0,11,11);
+	SetSkyAdjust(RGB(175,175,175));
 
 	Scoreboard->Init([
 		// Invisible team column for sorting players under their teams.
@@ -57,6 +60,22 @@ func ResetRound()
 
 func InitializeRound()
 {
+
+	Sound("vietnammusic*", true, 30, nil, 1);
+	
+	//AddEffect("Rain", nil, 1, 1, nil);
+	Cloud->Place(7);
+	Cloud->SetPrecipitation("Water", 100);
+	
+	for(var o in FindObjects(Find_ID(Cloud)))
+	{
+		o->SetPosition(o->GetX(), o->GetY()-150);
+	}
+	
+	// Some natural disasters.
+	Earthquake->SetChance(100);
+		
+
 	// Checking for victory: Only active after a Clonk dies.
 	g_check_victory_effect = AddEffect("CheckVictory", nil, 1, 0);
 	g_player_spawn_index = 0;
@@ -104,8 +123,32 @@ func InitializeRound()
 
 	// The game starts after a delay to ensure that everyone is ready.
 	GUI_Clock->CreateCountdown(3);
+	
+	Grass->Place(100);
+	Tree_Coconut->Place(12);
+	Piranha->Place(50);
+	Fern->Place(25);
+	
+	for (var p in FindObjects(Find_ID(Piranha)))
+	{
+		p.hunger=60;
+		AddEffect("NoDmg", p, 1, 500);
+	}
+		
+	
+	ScheduleCall(nil, "StartBombing", 40*RandomX(20, 30), 0, 0);
 
 	return true;
+}
+
+global func FxNoDmgTimer()
+{
+	return;
+}
+
+global func FxNoDmgDamage()
+{
+	return;
 }
 
 static g_player_spawn_positions, g_map_width, g_player_spawn_index;
@@ -181,6 +224,9 @@ func InitPlayerRound(int plr)
 	// Disable the Clonk during the countdown.
 	crew->SetCrewEnabled(false);
 	crew->SetComDir(COMD_Stop);
+	
+	//AddEffect("CheckCamping", crew, 1, 60);
+	
 	return true;
 }
 
@@ -369,4 +415,143 @@ func IsFirestoneSpot(int x, int y)
 {
 // Very thorough ice surrounding check so they don't explode right away or when the first layer of ice melts
 	return GBackSolid(x,y-1) && GBackSolid(x,y+4) && GBackSolid(x-2,y) && GBackSolid(x+2,y);
+}
+
+global func StartBombing(counter)
+{
+	Sound("warplane", true, 50, nil, 1);
+	var dir = Random(2)*2-1;
+	var cnt = RandomX(3, 5);
+	
+	var t = 0;
+	if (counter > 1)
+		t = 10;
+	if (counter > 2)
+	{
+		t = 15;
+		cnt = RandomX(6, 9);
+	}
+	if(counter > 2)
+	{
+		for(var obj in FindObjects(Find_ID(Clonk), Find_NoContainer()))
+		{
+			ScheduleCall(nil, "HeliAttack", 450, 0, obj);
+		}
+	}
+	
+	var x = Random(LandscapeWidth() - (100 * cnt));
+	
+	if(dir==-1)
+		x = LandscapeWidth()-x;
+	
+	var props = {
+	
+		Size = 5,
+		R = 150,
+		G = 100,
+		B = 0,
+		BlitMode = GFX_BLIT_Additive,
+		Alpha = PV_KeyFrames(0, 0, 0, 300, 255, 1000, 0),
+	};
+	
+	for(var i = 0; i < cnt; i++)
+	{
+		var dx = x + i * 100 * dir;
+		ScheduleCall(nil, "DropBomb", 200 + (i * 20), 0, dx, dir);
+		
+		var loc = SimFlight(dx, -15, 15*dir, 0);
+		
+		if (loc[1] > LandscapeHeight() - 10)
+			continue;
+		
+		for(var p = 1; p < 100; p+=1)
+		{
+			props.Size = 5 - (p*4/100);
+			CreateParticle("Flash", loc[0], loc[1]-p, 0, 0, 300, props, 1);
+		}
+		
+	}
+	
+	ScheduleCall(nil, "StartBombing", 40 * (RandomX(30, 35) - t), 0, ++counter);
+	
+	ScheduleCall(nil, "StopSound", 300 + (i * 20), 0);
+}
+
+global func StopSound()
+{
+	Sound("warplane_fade", true, 50, nil);
+	Sound("warplane", true, 50, nil, -1);
+}
+
+global func DropBomb(x, d, fin)
+{
+	var o = CreateObject(Bomb, x, -15, -1);
+	o->Sound("bomb_drop", false, 15);
+	if(d==-1)
+		o->SetR(170);
+	else
+		o->SetR(10);
+	o->SetXDir(15 * d);
+	
+	if(fin)
+		Sound("warplane", true, 50, nil, -1);
+}
+
+global func FxCheckCampingTimer(obj, fx)
+{
+	if (obj->GetX() < 10 || obj->GetX() > LandscapeWidth() - 10)
+		fx.counter++;
+	
+	if (fx.counter == 10)
+	{
+		fx.counter = 0;
+		HeliAttack(obj);
+	}
+}
+
+global func HeliAttack(obj)
+{
+	Sound("heli", true, 70);
+	var x = obj->GetX();
+	var d = Random(2)*2-1;
+	
+	var sx = x + RandomX(40, 80) * d;
+	
+	if (sx > LandscapeWidth()-10)
+		sx = x - RandomX(40, 80);
+	if (sx < 10)
+		sx = x + RandomX(40, 80);
+		
+	
+	ScheduleCall(nil, "DoHeliAttack", 4*40, 0, sx, obj->GetX(), obj->GetY());
+	
+	var props = {
+	
+		Size = 60,
+		R = 255,
+		G = 0,
+		B = 0,
+		BlitMode = GFX_BLIT_Additive,
+		Alpha = PV_KeyFrames(0, 0, 0, 300, 255, 1000, 0),
+		Rotation = PV_Step(4),
+	};
+	
+	obj->CreateParticle("HeliCrosshair", 0, 0, 0, 0, 200, props, 2);
+}
+
+global func DoHeliAttack(int sx, tx, ty)
+{
+	for(var i = 0; i < 15; i++)
+	{
+		ScheduleCall(nil, "HeliShoot", i*5, 0, sx, tx, ty);
+	}
+}
+
+global func HeliShoot(int sx, tx, ty)
+{
+	var a = Angle(sx, -15, tx, ty, 10);
+	
+	var o = CreateObject(HeliBullet, sx, -15, -1);
+	o->Launch(a + RandomX(-10, 10), 200, 10, 10);
+	o->Sound("gun_shot", false, 50);
 }

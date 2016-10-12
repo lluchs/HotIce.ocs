@@ -1,9 +1,9 @@
 [Head]
-Title=HotIce
+Title=HotIceVietnam
 Version=6,0
-MinPlayer=2
+MinPlayer=1
 MaxPlayer=20
-Icon=21
+Icon=25
 
 [Game]
 Mode=Melee
@@ -12,13 +12,11 @@ Rules=Rule_KillLogs=1;Rule_Gravestones=1;
 
 [Landscape]
 MapWidth=64
-MapHeight=40
+MapHeight=45
 TopOpen=1
 BottomOpen=1
-LeftOpen=10000
-RightOpen=10000
-AutoScanSideOpen=0
 MapZoom=18,0,0,18
+Sky=SkyVietnam
 
 [Weather]
 Climate=0
