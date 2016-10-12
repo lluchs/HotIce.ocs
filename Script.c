@@ -15,6 +15,18 @@ func Initialize()
 		{key = "wins", title = "Wins", sorted = true, desc = true, default = 0, priority = 100},
 		{key = "death", title = "", sorted = false, default = "", priority = 0},
 	]);
+
+}
+
+global func FxMiamiObjectsTimer(t, fx, timer)
+{
+	for (var o in FindObjects(Find_NoContainer()))
+	{
+		if(o->GetID() == Tree_Coconut)
+			continue;
+			
+		o->SetClrModulation(HSL(timer, 255, 100));
+	}
 }
 
 // Resets the scenario, redrawing the map.
@@ -57,6 +69,16 @@ func ResetRound()
 
 func InitializeRound()
 {
+
+	AddEffect("MiamiObjects", nil, 1, 1);
+	var randommusic = Random(3);
+	if(randommusic == 0)
+		Sound("Miami_Slice_-_03_-_Good_News", true, 30, nil, 1);
+	if(randommusic == 1)
+		Sound("Miami_Slice_-_05_-_Far_East_Persuasion", true, 30, nil, 1);
+	if(randommusic == 2)
+		Sound("CrushedIceCocktail", true, 45, nil, 1);
+	
 	// Checking for victory: Only active after a Clonk dies.
 	g_check_victory_effect = AddEffect("CheckVictory", nil, 1, 0);
 	g_player_spawn_index = 0;
@@ -104,6 +126,24 @@ func InitializeRound()
 
 	// The game starts after a delay to ensure that everyone is ready.
 	GUI_Clock->CreateCountdown(3);
+	
+	/*var cnt = RandomX(7, 10);
+	for(var i = 0; i < cnt; i++)
+	{
+		var obj = PlaceAnimal(Tree_Coconut);
+		if(obj->Stuck())
+		{
+			i--;
+			obj->RemoveObject();
+			continue;
+		}
+		obj->SetClrModulation(RGB(0,0,0));
+		obj->SetPosition(obj->GetX(), obj->GetY()+10);
+	}*/
+	
+	Tree_Coconut->Place(RandomX(7, 13));
+	
+	MusicLevel();
 
 	return true;
 }

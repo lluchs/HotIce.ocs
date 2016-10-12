@@ -1,5 +1,5 @@
 [Head]
-Title=HotIce
+Title=MiamiIce
 Version=6,0
 MinPlayer=2
 MaxPlayer=20
@@ -16,6 +16,7 @@ MapHeight=40
 TopOpen=1
 BottomOpen=1
 MapZoom=18,0,0,18
+Sky=SkyMiami
 
 [Weather]
 Climate=0

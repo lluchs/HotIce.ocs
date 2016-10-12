@@ -59,7 +59,7 @@ OverloadTextures
 66=Ice-ice
 67=Ice-ice2
 68=Ice-ice2
-
+69=Ice-black
 70=Snow-snow1
 71=Snow-snow1
 72=Snow-snow1
