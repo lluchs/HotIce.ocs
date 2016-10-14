@@ -15,6 +15,7 @@ func Initialize()
 		{key = "wins", title = "Wins", sorted = true, desc = true, default = 0, priority = 100},
 		{key = "death", title = "", sorted = false, default = "", priority = 0},
 	]);
+
 }
 
 // Resets the scenario, redrawing the map.
@@ -106,6 +107,9 @@ func InitializeRound()
 
 	// The game starts after a delay to ensure that everyone is ready.
 	GUI_Clock->CreateCountdown(3);
+
+	SetSky(g_theme.Sky);
+	g_theme->InitializeRound();
 
 	return true;
 }
@@ -448,3 +452,54 @@ func IsFirestoneSpot(int x, int y)
 // Very thorough ice surrounding check so they don't explode right away or when the first layer of ice melts
 	return GBackSolid(x,y-1) && GBackSolid(x,y+4) && GBackSolid(x-2,y) && GBackSolid(x+2,y);
 }
+
+// ============= Themes =============
+static const HotIce = new Global {
+	InitializeRound = func() { },
+	MatNames = ["^Ice-ice", "^Ice-ice2"],
+	Sky = "Default",
+};
+
+static const MiamiIce = new HotIce {
+	MatNames = ["^BlackIce-black", "^BlackIce-black"],
+	Sky = "SkyMiami",
+
+	InitializeRound = func()
+	{
+		// Colors
+		Scenario->CreateEffect(MiamiObjects, 1, 1);
+
+		// Music
+		Scenario->CreateEffect(MiamiMusic, 1);
+		MusicLevel(); // TODO: Reset this for Random Ice
+
+		Tree_Coconut->Place(RandomX(7, 13));
+	},
+
+	MiamiObjects = new Effect {
+		Timer = func(int time)
+		{
+			for (var o in FindObjects(Find_NoContainer()))
+			{
+				if (o->GetID() == Tree_Coconut)
+					continue;
+				o->SetClrModulation(HSL(time, 255, 100));
+			}
+		},
+	},
+
+	MiamiMusic = new Effect {
+		which = nil,
+		music = ["Miami_Slice_-_03_-_Good_News", "Miami_Slice_-_05_-_Far_East_Persuasion", "CrushedIceCocktail"],
+		level = [30,                             30,                                       45],
+		Construction = func()
+		{
+			this.which = Random(3);
+			Sound(music[which], true, level[which], nil, +1);
+		},
+		Destruction = func()
+		{
+			Sound(music[which], true, level[which], nil, -1);
+		},
+	},
+};
