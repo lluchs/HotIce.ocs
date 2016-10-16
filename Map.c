@@ -20,6 +20,8 @@ public func InitializeMap(proplist map)
 	var w = map.Wdt, h=map.Hgt;
 	g_map_width = w;
 	
+	if (g_theme.BackgroundMat)
+		map->Draw(g_theme.BackgroundMat, nil, [0,0,w,h]);
 	// Bottom lava lake
 	map->Draw("^DuroLava", nil, [0,h*4/5,w,h/5]);
 	
@@ -27,9 +29,9 @@ public func InitializeMap(proplist map)
 	if (t == 1) DrawSmallIslandsMap(map);
 	
 	// Alternate texctures
-	var icealt_tex = { Algo=MAPALGO_RndChecker, Wdt=2, Hgt=3 };
+	var icealt_tex = { Algo=MAPALGO_RndChecker, Wdt=2, Hgt=3, Ratio=g_theme.AltMatRatio };
 	icealt_tex = { Algo=MAPALGO_Turbulence, Op=icealt_tex };
-	icealt_tex = { Algo=MAPALGO_And, Op=[Duplicate("Ice"), icealt_tex]};
+	icealt_tex = { Algo=MAPALGO_And, Op=[Duplicate(RegexMatch(g_theme.MatNames[1], "\\w+", Regex_FirstOnly)[0][0]), icealt_tex]};
 	map->Draw(g_theme.MatNames[0], icealt_tex);
 	
 	// Return true to tell the engine a map has been successfully created.
@@ -40,11 +42,13 @@ func InitTheme()
 {
 	var theme = SCENPAR_Theme;
 	if (theme == 0) // Random Ice
-		theme = 1 + Random(2);
+		theme = 1 + Random(3);
 	if (theme == 1) // Hot Ice
 		return g_theme = HotIce;
 	if (theme == 2) // Miami Ice
 		return g_theme = MiamiIce;
+	if (theme == 3) // Eci Toh
+		return g_theme = EciToh;
 }
 
 func DrawBigIslandMap(proplist map)

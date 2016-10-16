@@ -6,6 +6,8 @@ RandomIce=Random Ice
 DescRandomIce=Random theme every round
 MiamiIce=Miami Ice
 DescMiamiIce=Cool Ice
+EciToh=Eci Toh
+DescEciToh=Battle on rocky islands!
 
 MapType=Map
 DescMapType=Defines the shape of the landscape.

@@ -21,6 +21,11 @@ Default=1
 		Description=$DescMiamiIce$
 		Value=2
 
+		[Option]
+		Name=$EciToh$
+		Description=$DescEciToh$
+		Value=3
+
 [ParameterDef]
 Name=$MapType$
 Description=$DescMapType$

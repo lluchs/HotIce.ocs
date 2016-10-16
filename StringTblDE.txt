@@ -6,6 +6,8 @@ RandomIce=Random Eis
 DescRandomIce=Zufälliges Thema jede Runde
 MiamiIce=Miami Eis
 DescMiamiIce=Augenkrebs
+EciToh=Eci Toh
+DescEciToh=Was mag der Name nur bedeuten?!
 
 MapType=Karte
 DescMapType=Definiert die Landschaftsform.
