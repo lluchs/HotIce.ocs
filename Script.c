@@ -479,7 +479,6 @@ static const MiamiIce = new HotIce {
 
 		// Music
 		Scenario->CreateEffect(MiamiMusic, 1);
-		MusicLevel(); // TODO: Reset this for Random Ice
 
 		Tree_Coconut->Place(RandomX(7, 13));
 	},
@@ -504,10 +503,12 @@ static const MiamiIce = new HotIce {
 		{
 			this.which = Random(3);
 			Sound(music[which], true, level[which], nil, +1);
+			MusicLevel(0);
 		},
 		Destruction = func()
 		{
 			Sound(music[which], true, level[which], nil, -1);
+			MusicLevel(100);
 		},
 	},
 };
