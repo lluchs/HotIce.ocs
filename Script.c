@@ -12,6 +12,14 @@ func Initialize()
 	SetSkyParallax(0,11,11);
 	SetSkyAdjust(RGB(175,175,175));
 
+	AddFragmentShader("Common", Format("%s\n%s\n%s\n%s\n%s\n%s",
+		"slice(finish+11) {",
+		"	fragColor = vec4(((fragColor.r * 0.393) + (fragColor.g *0.769) + (fragColor.b * 0.189))/1.3 + fragColor.r*0.75,",
+		"				((fragColor.r * 0.349) + (fragColor.g *0.686) + (fragColor.b * 0.168))/1.1 + fragColor.g*0.75,",
+		"				((fragColor.r * 0.272) + (fragColor.g *0.534) + (fragColor.b * 0.131))/1.3 + fragColor.b*0.75,",
+		"				fragColor.a);",
+		"}"));
+
 	Scoreboard->Init([
 		// Invisible team column for sorting players under their teams.
 		{key = "team", title = "", sorted = true, desc = false, default = "", priority = 90},
